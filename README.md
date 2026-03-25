@@ -7,7 +7,7 @@
 
 ## Live Demo
 
-🔗 **[View Live Site](#)** ← *(replace with your Netlify / Vercel / GitHub Pages URL)*
+🔗 **[View Live Site](https://imaginative-faun-1d7af2.netlify.app/)** ← *(replace with your Netlify / Vercel / GitHub Pages URL)*
 
 ---
 
