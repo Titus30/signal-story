@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGNAL — The Human Story of Connection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & ROOTS ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --void:      #050508;
+  --deep:      #0c0c14;
+  --surface:   #121220;
+  --gold:      #c9a84c;
+  --gold-dim:  rgba(201,168,76,0.25);
+  --gold-glow: rgba(201,168,76,0.08);
+  --ice:       #7dd3fc;
+  --text:      #ece8e0;
+  --muted:     rgba(236,232,224,0.38);
+  --serif:     'Cormorant Garamond', Georgia, serif;
+  --mono:      'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ===== FILM GRAIN OVERLAY ===== */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: 9001;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* ===== CUSTOM CURSOR ===== */
+#c-dot, #c-ring {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  will-change: transform;
+}
+#c-dot {
+  width: 6px; height: 6px;
+  background: var(--text);
+  mix-blend-mode: difference;
+  transition: transform 0.1s;
+}
+#c-ring {
+  width: 34px; height: 34px;
+  border: 1px solid rgba(236,232,224,0.35);
+  transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
+}
+body.cursor-hover #c-ring {
+  width: 56px; height: 56px;
+  border-color: var(--gold);
+  opacity: 0.7;
+}
+
+/* ===== LOADER ===== */
+#loader {
+  position: fixed; inset: 0;
+  background: var(--void);
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.8rem;
+}
+#loader-num {
+  font-family: var(--serif);
+  font-size: clamp(6rem, 16vw, 13rem);
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  min-width: 3ch;
+  text-align: center;
+}
+#loader-bar-wrap {
+  width: 220px;
+  height: 1px;
+  background: rgba(236,232,224,0.08);
+  overflow: hidden;
+}
+#loader-bar {
+  height: 100%;
+  background: var(--gold);
+  width: 0%;
+  transition: width 0.05s linear;
+}
+#loader-label {
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ===== NAV ===== */
+#nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 2rem 3.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 500;
+  opacity: 0;
+  transition: opacity 1s;
+}
+#nav.show { opacity: 1; }
+#nav::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(5,5,8,0.7) 0%, transparent 100%);
+  pointer-events: none;
+}
+.nav-logo {
+  position: relative;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  color: var(--text);
+  text-decoration: none;
+}
+.nav-links {
+  position: relative;
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--text); }
+
+/* ===== HERO ===== */
+#hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 2rem;
+  will-change: transform, opacity;
+}
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(5.5rem, 20vw, 18rem);
+  font-weight: 300;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.1s ease 0.2s, transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s;
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+.hero-sub {
+  font-size: clamp(0.82rem, 1.4vw, 1rem);
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 2rem auto 0;
+  line-height: 2;
+  opacity: 0;
+  transition: opacity 0.9s ease 0.55s;
+}
+.hero-inner.show .hero-eyebrow,
+.hero-inner.show .hero-sub { opacity: 1; transform: none; }
+.hero-inner.show .hero-title { opacity: 1; transform: none; }
+
+.scroll-cue {
+  position: absolute;
+  bottom: 2.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 1s ease 1.4s;
+  z-index: 1;
+}
+.hero-inner.show ~ .scroll-cue { opacity: 1; }
+.scroll-bar {
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: barPulse 2.2s ease-in-out infinite;
+}
+@keyframes barPulse {
+  0%,100%  { opacity: 0.25; transform: scaleY(1); }
+  50%      { opacity: 0.9;  transform: scaleY(0.65); }
+}
+
+/* ===== SECTION COMMON ===== */
+.s-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 9.5px;
+  letter-spacing: 0.38em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+}
+.s-label::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+.s-heading {
+  font-family: var(--serif);
+  font-weight: 300;
+  line-height: 1.08;
+  color: var(--text);
+}
+.s-heading em { font-style: italic; color: var(--gold); }
+.s-body {
+  color: var(--muted);
+  line-height: 2.1;
+  max-width: 48ch;
+}
+
+/* FADE-UP */
+.fu {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.16,1,0.3,1);
+}
+.fu.d1 { transition-delay: 0.1s; }
+.fu.d2 { transition-delay: 0.22s; }
+.fu.d3 { transition-delay: 0.34s; }
+.fu.d4 { transition-delay: 0.46s; }
+.fu.vis { opacity: 1; transform: none; }
+
+/* ===== SECTION: ORIGIN ===== */
+#origin {
+  background: var(--deep);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 100vh;
+  padding: 8rem 5rem;
+  gap: 7rem;
+  overflow: hidden;
+}
+.origin-art {
+  position: relative;
+  height: 68vh;
+  min-height: 400px;
+  overflow: hidden;
+}
+.origin-art-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 60%, rgba(201,168,76,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 20%, rgba(125,211,252,0.07) 0%, transparent 55%);
+}
+.cave-container {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* SVG draw animation */
+.dp {
+  stroke-dasharray: 1500;
+  stroke-dashoffset: 1500;
+}
+.dp.drawn {
+  animation: drawIn 2.5s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.dp.drawn.d1 { animation-delay: 0.3s; }
+.dp.drawn.d2 { animation-delay: 0.7s; }
+.dp.drawn.d3 { animation-delay: 1.1s; }
+.dp.drawn.d4 { animation-delay: 1.5s; }
+.dp.drawn.d5 { animation-delay: 0.5s; }
+@keyframes drawIn {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes starBlink {
+  0%,100% { opacity: 0.2; r: 2; }
+  50%      { opacity: 0.9; r: 3.5; }
+}
+
+/* ===== SECTION: EVOLUTION (Horizontal) ===== */
+#evolution {
+  height: 350vh;
+  background: var(--void);
+}
+.evo-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.evo-header {
+  position: absolute;
+  top: 3.5rem; left: 5rem;
+  z-index: 10;
+}
+.evo-track {
+  display: flex;
+  gap: 2.4rem;
+  padding-left: 5rem;
+  will-change: transform;
+  align-items: center;
+}
+.evo-card {
+  flex-shrink: 0;
+  width: 360px;
+  height: 500px;
+  background: var(--surface);
+  border: 1px solid rgba(236,232,224,0.055);
+  border-radius: 3px;
+  padding: 2.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1);
+  cursor: default;
+}
+.evo-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--cx,50%) var(--cy,50%), rgba(201,168,76,0.09) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.evo-card:hover::before { opacity: 1; }
+.evo-card:hover {
+  border-color: rgba(201,168,76,0.28);
+  transform: translateY(-5px);
+}
+.evo-ghost-year {
+  position: absolute;
+  top: 0.8rem; right: 2rem;
+  font-family: var(--serif);
+  font-size: 6rem;
+  font-weight: 300;
+  color: rgba(236,232,224,0.04);
+  line-height: 1;
+  user-select: none;
+}
+.evo-icon-ring {
+  width: 46px; height: 46px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold);
+  font-size: 1.15rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+.evo-card:hover .evo-icon-ring {
+  background: var(--gold-glow);
+  border-color: var(--gold);
+}
+.evo-era-tag {
+  font-size: 9.5px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.evo-title {
+  font-family: var(--serif);
+  font-size: 2.1rem;
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 0.9rem;
+}
+.evo-desc {
+  font-size: 11.5px;
+  line-height: 2;
+  color: var(--muted);
+}
+.evo-rule {
+  height: 1px;
+  background: rgba(201,168,76,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.evo-rule::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--gold);
+  transform: translateX(-105%);
+  transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.evo-card:hover .evo-rule::after { transform: translateX(0); }
+
+/* Scroll progress bar */
+.evo-progress-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: var(--gold);
+  width: 0%;
+  transition: width 0.1s linear;
+  z-index: 10;
+}
+
+/* ===== SECTION: CONVERGENCE ===== */
+#convergence {
+  background: var(--deep);
+  padding: 9rem 5rem;
+  min-height: 100vh;
+}
+.conv-header {
+  text-align: center;
+  margin-bottom: 6rem;
+}
+.conv-header .s-label { justify-content: center; }
+.conv-header .s-label::before { display: none; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-bottom: 7rem;
+}
+.stat-cell {
+  background: var(--surface);
+  padding: 3.2rem 2.5rem;
+  text-align: center;
+  border: 1px solid rgba(236,232,224,0.04);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.4s;
+}
+.stat-cell::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 0; height: 1px;
+  background: var(--gold);
+  transition: width 0.5s ease;
+}
+.stat-cell:hover::before { width: 60%; }
+.stat-cell:hover { background: rgba(201,168,76,0.04); }
+.stat-num {
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 5.5vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+}
+.stat-num sup { font-size: 0.5em; color: var(--gold); }
+.stat-num .gold { color: var(--gold); }
+.stat-tag {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* Timeline */
+.tl-wrap {
+  position: relative;
+  padding: 3.5rem 0;
+}
+.tl-track {
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 1px;
+  background: rgba(236,232,224,0.08);
+  transform: translateY(-50%);
+}
+.tl-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: linear-gradient(to right, var(--gold), rgba(201,168,76,0.4));
+  width: 0%;
+  transition: width 2.2s cubic-bezier(0.16,1,0.3,1);
+}
+.tl-dots {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tl-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.tl-dot:nth-child(even) { flex-direction: column-reverse; }
+.tl-dot-pip {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,168,76,0.3);
+  background: var(--deep);
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  margin: 1.8rem 0;
+}
+.tl-dot.active .tl-dot-pip,
+.tl-dot:hover .tl-dot-pip {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(201,168,76,0.45);
+}
+.tl-dot-info {
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+.tl-dot:hover .tl-dot-info,
+.tl-dot.active .tl-dot-info { color: var(--text); }
+.tl-dot-info strong {
+  display: block;
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  font-weight: 400;
+}
+
+/* ===== SECTION: CONCLUSION ===== */
+#conclusion {
+  background: var(--void);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+#conc-canvas {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.conc-inner { position: relative; z-index: 1; }
+.conc-title {
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 10vw, 9rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+.conc-body {
+  font-size: clamp(12px, 1.3vw, 14px);
+  line-height: 2.1;
+  color: var(--muted);
+  max-width: 50ch;
+  margin: 0 auto 3.5rem;
+}
+
+/* Magnetic button */
+.mag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 3rem;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: transparent;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.4s;
+}
+.mag-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--gold);
+  transform: translateY(105%);
+  transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+}
+.mag-btn:hover::before { transform: translateY(0); }
+.mag-btn:hover { color: var(--void); }
+.mag-btn span { position: relative; z-index: 1; }
+
+/* Second CTA — outlined */
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.1rem 2.5rem;
+  border: 1px solid rgba(236,232,224,0.2);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: transparent;
+  cursor: none;
+  text-decoration: none;
+  transition: border-color 0.3s, color 0.3s;
+  margin-left: 1rem;
+}
+.ghost-btn:hover {
+  border-color: rgba(236,232,224,0.5);
+  color: var(--text);
+}
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--void);
+  border-top: 1px solid rgba(236,232,224,0.06);
+  padding: 2.5rem 5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer span {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(236,232,224,0.22);
+  text-transform: uppercase;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 960px) {
+  #origin {
+    grid-template-columns: 1fr;
+    padding: 6rem 2.5rem;
+    gap: 3.5rem;
+  }
+  .origin-art { height: 42vh; }
+  #nav { padding: 1.5rem 2rem; }
+  .nav-links { display: none; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  #convergence { padding: 7rem 2.5rem; }
+  footer { padding: 2rem 2.5rem; flex-direction: column; gap: 0.8rem; text-align: center; }
+  .evo-header { left: 2rem; }
+  .evo-card { width: 300px; height: 450px; }
+  .evo-track { padding-left: 2rem; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .tl-dot-info { font-size: 8px; }
+  .evo-card { width: 260px; }
+  .ghost-btn { display: none; }
+}
+
+/* ===== LOADING ANIMATION ===== */
+@keyframes loaderFadeOut {
+  0%   { opacity:1; transform:translateY(0); }
+  100% { opacity:0; transform:translateY(-16px); pointer-events:none; }
+}
+#loader.done {
+  animation: loaderFadeOut 0.8s cubic-bezier(0.4,0,0.6,1) forwards;
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="c-dot"></div>
+<div id="c-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div id="loader-num">0</div>
+  <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+  <div id="loader-label">Initializing Signal</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">SIGNAL</a>
+  <ul class="nav-links">
+    <li><a href="#origin">Origin</a></li>
+    <li><a href="#evolution">Evolution</a></li>
+    <li><a href="#convergence">Convergence</a></li>
+    <li><a href="#conclusion">Beyond</a></li>
+  </ul>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner" id="hero-inner">
+    <div class="hero-eyebrow">A Human Story of Connection</div>
+    <h1 class="hero-title">SIG<em>NAL</em></h1>
+    <p class="hero-sub">
+      From the first mark pressed into cave stone to the infinite threads of the digital age —
+      trace the unbroken story of how we reached across distance to touch each other.
+    </p>
+  </div>
+  <div class="scroll-cue" id="scroll-cue">
+    <div class="scroll-bar"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ===================== ORIGIN ===================== -->
+<section id="origin">
+  <!-- Art panel -->
+  <div class="origin-art">
+    <div class="origin-art-bg"></div>
+    <div class="cave-container">
+      <svg id="cave-svg" width="340" height="320" viewBox="0 0 340 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cave paintings as SVG paths -->
+        <path class="dp" d="M40 240 C70 200, 110 220, 150 190 C190 160, 230 175, 280 150"
+          stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round" opacity="0.65"/>
+
+        <!-- Animal figure -->
+        <path class="dp d1"
+          d="M80 130 C95 100, 135 95, 150 120 C165 145, 145 165, 120 158 C95 151, 75 160, 80 130Z
+             M150 120 L170 105 M150 120 L172 125
+             M90 158 L80 180 M115 158 L110 180"
+          stroke="rgba(236,232,224,0.28)" stroke-width="1" stroke-linecap="round"/>
+
+        <!-- Sun / circle glyph -->
+        <circle class="dp d2" cx="240" cy="75" r="32"
+          stroke="#c9a84c" stroke-width="1" opacity="0.5"/>
+        <line class="dp d2" x1="240" y1="35" x2="240" y2="20"
+          stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+        <line class="dp d2" x1="272" y1="75" x2="287" y2="75"
+          stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+        <line class="dp d2" x1="265" y1="50" x2="277" y2="38"
+          stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+        <line class="dp d2" x1="215" y1="50" x2="203" y2="38"
+          stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+
+        <!-- Hand print silhouette -->
+        <path class="dp d3"
+          d="M190 260 C188 240, 185 230, 188 220 C191 210, 198 208, 200 220
+             M196 217 C195 200, 200 195, 205 205 C206 210, 207 218, 206 224
+             M205 218 C205 202, 210 198, 215 208 L216 224
+             M215 222 C215 207, 218 204, 222 212 L222 228
+             M222 228 C224 218, 228 215, 230 222 L230 250
+             C228 265, 220 272, 210 270 C200 268, 190 265, 190 260Z"
+          stroke="rgba(201,168,76,0.45)" stroke-width="1" stroke-linejoin="round"/>
+
+        <!-- Constellation lines -->
+        <line class="dp d4" x1="35" y1="60" x2="65" y2="40"
+          stroke="rgba(125,211,252,0.25)" stroke-width="0.8"/>
+        <line class="dp d4" x1="65" y1="40" x2="90" y2="55"
+          stroke="rgba(125,211,252,0.25)" stroke-width="0.8"/>
+        <line class="dp d4" x1="90" y1="55" x2="75" y2="75"
+          stroke="rgba(125,211,252,0.25)" stroke-width="0.8"/>
+
+        <!-- Stars (animated circles, not draw-path) -->
+        <circle cx="35" cy="60" r="2.5" fill="rgba(125,211,252,0.6)">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite" begin="0s"/>
+        </circle>
+        <circle cx="65" cy="40" r="2" fill="rgba(125,211,252,0.5)">
+          <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.4s" repeatCount="indefinite" begin="0.5s"/>
+        </circle>
+        <circle cx="90" cy="55" r="2.5" fill="rgba(125,211,252,0.55)">
+          <animate attributeName="opacity" values="0.2;1;0.2" dur="3.5s" repeatCount="indefinite" begin="1s"/>
+        </circle>
+        <circle cx="75" cy="75" r="1.8" fill="rgba(201,168,76,0.7)">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+        </circle>
+        <circle cx="295" cy="180" r="2" fill="rgba(201,168,76,0.5)">
+          <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.8s" repeatCount="indefinite" begin="0.8s"/>
+        </circle>
+        <circle cx="310" cy="240" r="1.5" fill="rgba(236,232,224,0.4)">
+          <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3.2s" repeatCount="indefinite" begin="1.2s"/>
+        </circle>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Text panel -->
+  <div>
+    <div class="s-label fu">01 / Origin</div>
+    <h2 class="s-heading fu d1" style="font-size: clamp(2.4rem,4.5vw,4.2rem); margin-bottom: 2rem;">
+      Before the <em>word</em>,<br>there was the mark
+    </h2>
+    <p class="s-body fu d2" style="margin-bottom: 1.8rem;">
+      Forty thousand years ago, a hand pressed against cave stone and breathed pigment through hollow bone.
+      The outline remained. That deliberate act — the leaving of a mark — was the first signal.
+      The first proof across time: <em style="color:var(--text); font-style:italic;">I was here. I felt. I saw.</em>
+    </p>
+    <p class="s-body fu d3">
+      Every technology since has been an elaboration of that primal urge: to reach across distance,
+      across time itself, and touch another conscious mind.
+      The medium changes. The signal endures.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== EVOLUTION (Horizontal Scroll) ===================== -->
+<section id="evolution">
+  <div class="evo-sticky">
+    <div class="evo-progress-bar" id="evo-bar"></div>
+    <div class="evo-header">
+      <div class="s-label">02 / Evolution</div>
+      <h2 class="s-heading" style="font-size: clamp(1.8rem,3.5vw,3rem); max-width: 22ch;">
+        Each era, a new <em>frequency</em>
+      </h2>
+    </div>
+    <div class="evo-track" id="evo-track">
+
+      <div class="evo-card" style="margin-top: 5rem;">
+        <div class="evo-ghost-year">3000</div>
+        <div class="evo-icon-ring">✦</div>
+        <div>
+          <div class="evo-era-tag">Bronze Age · Writing</div>
+          <div class="evo-title">The Alphabet</div>
+          <div class="evo-desc">
+            Cuneiform pressed into clay tablets. Hieroglyphs carved into limestone.
+            Thought given permanence. Memory extended beyond the mortal
+            mind into imperishable matter — the first external hard drive.
+          </div>
+        </div>
+        <div class="evo-rule"></div>
+      </div>
+
+      <div class="evo-card" style="margin-top: -4rem;">
+        <div class="evo-ghost-year">1440</div>
+        <div class="evo-icon-ring">⊕</div>
+        <div>
+          <div class="evo-era-tag">Renaissance · Print</div>
+          <div class="evo-title">The Press</div>
+          <div class="evo-desc">
+            Gutenberg's machine shattered the monopoly of knowledge.
+            Ideas could now multiply at the speed of ink on paper.
+            The first viral medium — and the first information revolution.
+          </div>
+        </div>
+        <div class="evo-rule"></div>
+      </div>
+
+      <div class="evo-card" style="margin-top: 3rem;">
+        <div class="evo-ghost-year">1837</div>
+        <div class="evo-icon-ring">⚡</div>
+        <div>
+          <div class="evo-era-tag">Industrial Age · Telegraph</div>
+          <div class="evo-title">The Wire</div>
+          <div class="evo-desc">
+            Morse code raced through copper at the speed of lightning.
+            For the first time, a message could outrun a galloping horse.
+            Distance collapsed. The world shrank to the width of a pulse.
+          </div>
+        </div>
+        <div class="evo-rule"></div>
+      </div>
+
+      <div class="evo-card" style="margin-top: -2rem;">
+        <div class="evo-ghost-year">1969</div>
+        <div class="evo-icon-ring">◎</div>
+        <div>
+          <div class="evo-era-tag">Digital Age · Internet</div>
+          <div class="evo-title">The Network</div>
+          <div class="evo-desc">
+            A packet of data leapt between UCLA and Stanford.
+            In that silence between nodes, the internet was born —
+            a planetary nervous system, patient and vast, waiting to be filled.
+          </div>
+        </div>
+        <div class="evo-rule"></div>
+      </div>
+
+      <div class="evo-card" style="margin-top: 4rem; margin-right: 5rem;">
+        <div class="evo-ghost-year">Now</div>
+        <div class="evo-icon-ring">◈</div>
+        <div>
+          <div class="evo-era-tag">Intelligence Age · AI</div>
+          <div class="evo-title">The Emergence</div>
+          <div class="evo-desc">
+            The signal learns to speak back. Machines that dream in language,
+            reason in metaphor, and create in collaboration.
+            The ancient conversation takes its strangest, most luminous turn yet.
+          </div>
+        </div>
+        <div class="evo-rule"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONVERGENCE ===================== -->
+<section id="convergence">
+  <div class="conv-header">
+    <div class="s-label fu">03 / Convergence</div>
+    <h2 class="s-heading fu d1" style="font-size: clamp(2.5rem,6vw,5.5rem); margin-bottom: 1.8rem;">
+      The world <em>connected</em>
+    </h2>
+    <p class="fu d2" style="color:var(--muted); max-width:52ch; margin:0 auto; line-height:2;">
+      These are not mere statistics. Each unit is a heartbeat, a voice, a mind
+      reaching toward another across the invisible architecture of signal.
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-cell fu">
+      <div class="stat-num"><span id="cnt-1">0</span><sup>.4B</sup></div>
+      <div class="stat-tag">Internet Users Worldwide</div>
+    </div>
+    <div class="stat-cell fu d1">
+      <div class="stat-num"><span id="cnt-2">0</span><span class="gold">B</span></div>
+      <div class="stat-tag">Emails Sent Each Day</div>
+    </div>
+    <div class="stat-cell fu d2">
+      <div class="stat-num"><span id="cnt-3">0</span><span class="gold">M+</span></div>
+      <div class="stat-tag">Social Posts Per Minute</div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="tl-wrap" id="tl-wrap">
+    <div class="tl-track"><div class="tl-fill" id="tl-fill"></div></div>
+    <div class="tl-dots">
+      <div class="tl-dot active" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">Writing<strong>3000 BCE</strong></div>
+      </div>
+      <div class="tl-dot" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">Printing<strong>1440 CE</strong></div>
+      </div>
+      <div class="tl-dot" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">Telegraph<strong>1837</strong></div>
+      </div>
+      <div class="tl-dot" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">Radio<strong>1906</strong></div>
+      </div>
+      <div class="tl-dot" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">Internet<strong>1969</strong></div>
+      </div>
+      <div class="tl-dot" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">Mobile<strong>2007</strong></div>
+      </div>
+      <div class="tl-dot" tabindex="0">
+        <div class="tl-dot-pip"></div>
+        <div class="tl-dot-info">AI<strong>Now</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONCLUSION ===================== -->
+<section id="conclusion">
+  <canvas id="conc-canvas"></canvas>
+  <div class="conc-inner">
+    <div class="s-label fu" style="justify-content:center;">
+      <span>04 / Beyond</span>
+    </div>
+    <h2 class="conc-title fu d1">
+      What <em>signal</em><br>will you send?
+    </h2>
+    <p class="conc-body fu d2">
+      Every message you write, every idea you share, every connection you forge
+      continues the oldest story in the world. The signal never stops — it only
+      evolves, searching for the next mind ready to receive it.
+    </p>
+    <div class="btn-row fu d3">
+      <button class="mag-btn" id="mag-btn">
+        <span>Begin Again</span>
+        <span>↑</span>
+      </button>
+      <a href="#origin" class="ghost-btn">
+        <span>Explore Story</span>
+        <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Signal — The Human Story of Connection</span>
+  <span>Frontend Odyssey Challenge</span>
+</footer>
+
+<!-- ====================================================
+     JAVASCRIPT
+==================================================== -->
+<script>
+/* ─────────────── CURSOR ─────────────── */
+const cDot  = document.getElementById('c-dot');
+const cRing = document.getElementById('c-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+;(function ringLoop() {
+  rx += (mx - rx) * 0.11;
+  ry += (my - ry) * 0.11;
+  cDot.style.left  = mx + 'px';
+  cDot.style.top   = my + 'px';
+  cRing.style.left = rx + 'px';
+  cRing.style.top  = ry + 'px';
+  requestAnimationFrame(ringLoop);
+})();
+
+document.querySelectorAll('a, button, .evo-card, .tl-dot, .stat-cell').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+/* ─────────────── LOADER ─────────────── */
+const loaderEl  = document.getElementById('loader');
+const loaderNum = document.getElementById('loader-num');
+const loaderBar = document.getElementById('loader-bar');
+let pct = 0;
+
+const loaderInt = setInterval(() => {
+  pct = Math.min(100, pct + Math.random() * 9 + 2);
+  loaderNum.textContent = Math.floor(pct);
+  loaderBar.style.width = pct + '%';
+  if (pct >= 100) {
+    clearInterval(loaderInt);
+    setTimeout(launchSite, 350);
+  }
+}, 42);
+
+function launchSite() {
+  loaderEl.classList.add('done');
+  setTimeout(() => { loaderEl.style.display = 'none'; }, 900);
+  document.getElementById('nav').classList.add('show');
+  // Animate hero
+  setTimeout(() => {
+    document.getElementById('hero-inner').classList.add('show');
+    document.getElementById('scroll-cue').style.opacity = '1';
+    document.getElementById('scroll-cue').style.transition = 'opacity 1s ease 1.4s';
+  }, 100);
+}
+
+/* ─────────────── HERO CANVAS ─────────────── */
+const hCanvas = document.getElementById('hero-canvas');
+const hCtx    = hCanvas.getContext('2d');
+
+function resizeHero() {
+  hCanvas.width  = window.innerWidth;
+  hCanvas.height = window.innerHeight;
+}
+resizeHero();
+window.addEventListener('resize', resizeHero);
+
+const NUM_PTS  = window.innerWidth < 700 ? 70 : 130;
+const CONNECT  = 130;
+
+const pts = Array.from({length: NUM_PTS}, () => ({
+  x : Math.random() * hCanvas.width,
+  y : Math.random() * hCanvas.height,
+  vx: (Math.random() - 0.5) * 0.35,
+  vy: (Math.random() - 0.5) * 0.35,
+  r : Math.random() * 1.4 + 0.4,
+  op: Math.random() * 0.55 + 0.1,
+  ph: Math.random() * Math.PI * 2,
+  ps: Math.random() * 0.018 + 0.004,
+  gold: Math.random() > 0.72
+}));
+
+let scrollY = 0;
+
+;(function heroLoop() {
+  hCtx.clearRect(0, 0, hCanvas.width, hCanvas.height);
+  hCtx.save();
+  hCtx.translate(0, -scrollY * 0.28);
+
+  // update + draw points
+  pts.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.ph += p.ps;
+    if (p.x < 0) p.x = hCanvas.width;
+    if (p.x > hCanvas.width)  p.x = 0;
+    if (p.y < 0) p.y = hCanvas.height;
+    if (p.y > hCanvas.height) p.y = 0;
+
+    const op = p.op * (0.55 + 0.45 * Math.sin(p.ph));
+    hCtx.beginPath();
+    hCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    hCtx.fillStyle = p.gold ? '#c9a84c' : '#ece8e0';
+    hCtx.globalAlpha = op;
+    hCtx.fill();
+  });
+
+  // connect nearby
+  hCtx.lineWidth = 0.5;
+  for (let i = 0; i < pts.length; i++) {
+    for (let j = i + 1; j < pts.length; j++) {
+      const dx = pts[i].x - pts[j].x;
+      const dy = pts[i].y - pts[j].y;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      if (d < CONNECT) {
+        hCtx.beginPath();
+        hCtx.globalAlpha = (1 - d / CONNECT) * 0.14;
+        hCtx.strokeStyle = '#c9a84c';
+        hCtx.moveTo(pts[i].x, pts[i].y);
+        hCtx.lineTo(pts[j].x, pts[j].y);
+        hCtx.stroke();
+      }
+    }
+  }
+
+  hCtx.restore();
+  requestAnimationFrame(heroLoop);
+})();
+
+/* ─────────────── SCROLL EVENTS ─────────────── */
+window.addEventListener('scroll', () => {
+  scrollY = window.scrollY;
+
+  // Hero parallax + fade
+  const heroInner = document.getElementById('hero-inner');
+  const scrollCue = document.getElementById('scroll-cue');
+  const fadeAmt   = scrollY / window.innerHeight;
+  heroInner.style.transform = `translateY(${scrollY * 0.38}px)`;
+  heroInner.style.opacity   = Math.max(0, 1 - fadeAmt * 1.6);
+  scrollCue.style.opacity   = Math.max(0, (1 - fadeAmt * 2)) > 0 && heroInner.classList.contains('show') ? Math.max(0, 1 - fadeAmt * 2) : '0';
+
+  // Horizontal scroll – Evolution
+  const evoSec   = document.getElementById('evolution');
+  const evoTrack = document.getElementById('evo-track');
+  const evoBar   = document.getElementById('evo-bar');
+
+  const sTop    = evoSec.offsetTop;
+  const sHeight = evoSec.offsetHeight;
+  const rel     = scrollY - sTop;
+
+  if (rel >= 0 && rel <= sHeight - window.innerHeight) {
+    const prog    = rel / (sHeight - window.innerHeight);
+    const maxSlide = evoTrack.scrollWidth - window.innerWidth + 80;
+    evoTrack.style.transform = `translateX(${-prog * maxSlide}px)`;
+    evoBar.style.width = (prog * 100) + '%';
+  }
+});
+
+/* ─────────────── FADE-UP OBSERVER ─────────────── */
+const fuObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.14 });
+document.querySelectorAll('.fu').forEach(el => fuObs.observe(el));
+
+/* ─────────────── CAVE SVG DRAW ─────────────── */
+const caveObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.dp').forEach((path, i) => {
+        setTimeout(() => path.classList.add('drawn'), i * 280);
+      });
+      caveObs.disconnect();
+    }
+  });
+}, { threshold: 0.35 });
+caveObs.observe(document.getElementById('cave-svg'));
+
+/* ─────────────── EVOLUTION CARD GLOW ─────────────── */
+document.querySelectorAll('.evo-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--cx', ((e.clientX - r.left) / r.width * 100) + '%');
+    card.style.setProperty('--cy', ((e.clientY - r.top)  / r.height * 100) + '%');
+  });
+});
+
+/* ─────────────── COUNTER ANIMATION ─────────────── */
+function countTo(el, target, decimals, dur) {
+  const start = performance.now();
+  const tick = now => {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = (target * ease).toFixed(decimals);
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+const statsObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      countTo(document.getElementById('cnt-1'), 5, 0, 2000);
+      countTo(document.getElementById('cnt-2'), 333, 0, 2200);
+      countTo(document.getElementById('cnt-3'), 500, 0, 1900);
+      statsObs.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+statsObs.observe(document.querySelector('.stats-grid'));
+
+/* ─────────────── TIMELINE ─────────────── */
+const tlObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.getElementById('tl-fill').style.width = '100%';
+      document.querySelectorAll('.tl-dot').forEach((dot, i) => {
+        setTimeout(() => dot.classList.add('active'), i * 280);
+      });
+      tlObs.disconnect();
+    }
+  });
+}, { threshold: 0.4 });
+tlObs.observe(document.getElementById('tl-wrap'));
+
+// Click interaction
+document.querySelectorAll('.tl-dot').forEach((dot, i, all) => {
+  dot.addEventListener('click', () => {
+    all.forEach(d => d.classList.remove('active'));
+    // activate up to and including clicked
+    for (let j = 0; j <= i; j++) all[j].classList.add('active');
+    // animate fill to proportion
+    document.getElementById('tl-fill').style.width = ((i / (all.length - 1)) * 100) + '%';
+  });
+  dot.addEventListener('keydown', e => { if (e.key === 'Enter') dot.click(); });
+});
+
+/* ─────────────── CONCLUSION CANVAS (floating orbs) ─────────────── */
+const cCanvas = document.getElementById('conc-canvas');
+const cCtx    = cCanvas.getContext('2d');
+
+function resizeConc() {
+  cCanvas.width  = cCanvas.parentElement.offsetWidth;
+  cCanvas.height = cCanvas.parentElement.offsetHeight;
+}
+resizeConc();
+window.addEventListener('resize', resizeConc);
+
+const orbs = Array.from({length: 10}, () => ({
+  x   : Math.random() * cCanvas.width,
+  y   : Math.random() * cCanvas.height,
+  r   : Math.random() * 120 + 60,
+  vx  : (Math.random() - 0.5) * 0.6,
+  vy  : (Math.random() - 0.5) * 0.6,
+  gold: Math.random() > 0.5
+}));
+
+;(function orbLoop() {
+  cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+  orbs.forEach(o => {
+    o.x += o.vx; o.y += o.vy;
+    if (o.x < -o.r) o.x = cCanvas.width + o.r;
+    if (o.x > cCanvas.width + o.r) o.x = -o.r;
+    if (o.y < -o.r) o.y = cCanvas.height + o.r;
+    if (o.y > cCanvas.height + o.r) o.y = -o.r;
+
+    const g = cCtx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r);
+    if (o.gold) {
+      g.addColorStop(0, 'rgba(201,168,76,0.09)');
+    } else {
+      g.addColorStop(0, 'rgba(125,211,252,0.07)');
+    }
+    g.addColorStop(1, 'transparent');
+    cCtx.beginPath();
+    cCtx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+    cCtx.fillStyle = g;
+    cCtx.fill();
+  });
+  requestAnimationFrame(orbLoop);
+})();
+
+/* ─────────────── MAGNETIC BUTTON ─────────────── */
+const magBtn = document.getElementById('mag-btn');
+magBtn.addEventListener('mousemove', e => {
+  const r  = magBtn.getBoundingClientRect();
+  const dx = e.clientX - (r.left + r.width  / 2);
+  const dy = e.clientY - (r.top  + r.height / 2);
+  magBtn.style.transform = `translate(${dx * 0.28}px, ${dy * 0.28}px)`;
+  magBtn.style.transition = 'transform 0.1s, color 0.4s';
+});
+magBtn.addEventListener('mouseleave', () => {
+  magBtn.style.transform  = '';
+  magBtn.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1), color 0.4s';
+});
+magBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+</body>
+</html>

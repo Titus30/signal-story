@@ -1,0 +1,34 @@
+PROJECT DESCRIPTION — SIGNAL: The Human Story of Connection
+Frontend Odyssey: Interactive Web Experience Challenge
+Word Count: 278
+─────────────────────────────────────────────────────
+
+SIGNAL is an immersive, scroll-driven storytelling experience that traces the complete
+arc of human communication — from prehistoric cave paintings to artificial intelligence.
+The central premise is that every technology ever invented has been an elaboration of one
+primal urge: to reach across distance and touch another mind.
+
+CONCEPT
+
+The narrative unfolds across five sections — Hero, Origin, Evolution, Convergence, and
+Beyond — each representing a distinct chapter in humanity's story of connection. Rather
+than presenting this as a timeline lecture, SIGNAL makes the user physically feel each
+era's scale: the fragility of a hand-pressed mark, the exponential acceleration of the
+printing press, the instantaneous collapse of distance via telegraph and internet.
+
+DESIGN PROCESS
+
+The visual language was built around three anchors: a deep void palette (near-black
+#050508) evoking the darkness of a cave; aged gold (#c9a84c) representing preserved,
+enduring signal; and ice blue for digital-era precision. Typography pairs Cormorant
+Garamond — timeless, editorial, weighted — with JetBrains Mono for the technical layer.
+A 2.8% film grain overlay prevents the experience from feeling purely synthetic.
+
+Technically, the project is a single self-contained HTML file with zero dependencies and
+no build step. Interactivity is driven by the Canvas API (particle constellation, floating
+orbs), native SVG stroke-dashoffset path animation (cave art draw-on), IntersectionObserver
+(scroll reveals, counter triggers), and CSS custom properties for the card mouse-glow effect.
+A custom two-layer lagging cursor and a magnetic button add physicality to every interaction.
+
+The result is a site that does not just tell the story of human connection — it asks the
+visitor to participate in it.
